@@ -25,25 +25,37 @@ class AdapterError(Exception):
 
 def create_source(config: AgentSyncConfig) -> SourceAdapter:
     """Instantiate a source adapter from *config.source.type*."""
+    if config.source.type == "claude":
+        from agentsync.adapters.claude import ClaudeSourceAdapter
+
+        return ClaudeSourceAdapter(config)
+
     raise AdapterError(
-        f"No adapter registered for source type '{config.source.type}'. "
-        f"Install an adapter package or wait for RB-276."
+        f"No adapter registered for source type '{config.source.type}'."
     )
 
 
 def create_targets(config: AgentSyncConfig) -> dict[str, TargetAdapter]:
     """Instantiate target adapters from *config.targets*."""
-    missing_types: list[str] = []
+    targets: dict[str, TargetAdapter] = {}
     for name, tc in config.targets.items():
-        missing_types.append(tc.type)
+        if tc.type == "cursor":
+            from agentsync.adapters.cursor import CursorTargetAdapter
 
-    if missing_types:
-        unique = sorted(set(missing_types))
-        raise AdapterError(
-            f"No adapters registered for target types: {', '.join(unique)}. "
-            f"Install adapter packages or wait for RB-277."
-        )
-    return {}  # pragma: no cover
+            targets[name] = CursorTargetAdapter(tc, config)
+        elif tc.type == "codex":
+            from agentsync.adapters.codex import CodexTargetAdapter
+
+            targets[name] = CodexTargetAdapter(tc, config)
+        elif tc.type == "antigravity":
+            from agentsync.adapters.antigravity import AntigravityTargetAdapter
+
+            targets[name] = AntigravityTargetAdapter(tc, config)
+        else:
+            raise AdapterError(
+                f"No adapter registered for target type '{tc.type}'."
+            )
+    return targets
 
 
 # ===================================================================
