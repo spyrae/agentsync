@@ -1,0 +1,49 @@
+# agentsync.yaml — Configuration for syncing AI agent configs
+# See: https://github.com/spyrae/agentsync
+
+version: 1
+
+# Source of truth — where to read MCP servers and rules from
+source:
+  type: claude                    # Currently only "claude" is supported
+  global_config: ~/.claude.json   # Claude Code global config
+  project_mcp: .mcp.json         # Project-level MCP servers
+  rules_file: CLAUDE.md           # Project rules (Markdown)
+
+# Target agents — where to write synced configs
+targets:
+  cursor:
+    type: cursor
+    mcp_path: ~/.cursor/mcp.json
+    rules_path: .cursor/rules/project.mdc
+    rules_format: mdc              # MDC = Markdown with YAML frontmatter
+    exclude_servers: []
+
+  codex:
+    type: codex
+    config_path: ~/.codex/config.toml
+    rules_path: AGENTS.md
+    rules_format: md
+    exclude_servers:
+      - codex                      # Codex can't call itself
+
+  antigravity:
+    type: antigravity
+    mcp_path: ~/.gemini/antigravity/mcp_config.json
+    protocols:
+      - stdio                      # Only stdio servers (no HTTP)
+    exclude_servers: []
+
+# Rules filtering — sections to exclude from generated rules
+rules:
+  exclude_sections:
+    # Add section headers (## or ###) that are agent-specific
+    # and should NOT appear in generated rules for other agents
+    - "MCP Servers"
+    - "Context Management & Agents"
+
+# Sync options
+sync:
+  backup: true                     # Create backups before writing
+  backup_dir: .agentsync/backups   # Where to store backups
+  log_dir: .agentsync/logs         # Where to store sync logs
