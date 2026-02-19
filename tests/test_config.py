@@ -15,7 +15,6 @@ from agentsync.config import (
     resolve_path,
 )
 
-
 # === resolve_path ===
 
 
@@ -174,7 +173,8 @@ def test_load_unsupported_version(tmp_path: Path):
 
 def test_load_unknown_source_type(tmp_path: Path):
     config_file = tmp_path / "agentsync.yaml"
-    config_file.write_text("version: 1\nsource:\n  type: unknown\ntargets:\n  x:\n    type: cursor\n")
+    yaml_content = "version: 1\nsource:\n  type: unknown\ntargets:\n  x:\n    type: cursor\n"
+    config_file.write_text(yaml_content)
     with pytest.raises(ConfigError, match="Unknown source type"):
         load_config(config_file)
 

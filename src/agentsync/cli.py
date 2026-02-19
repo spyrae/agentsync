@@ -3,10 +3,52 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 
 from agentsync import __version__
+
+if TYPE_CHECKING:
+    from agentsync.adapters.base import SourceAdapter, TargetAdapter
+    from agentsync.config import AgentSyncConfig
+
+
+# ===================================================================
+# Adapter registry (stubs — real adapters registered in RB-276/277)
+# ===================================================================
+
+
+class AdapterError(Exception):
+    """Raised when no adapter is registered for a given type."""
+
+
+def create_source(config: AgentSyncConfig) -> SourceAdapter:
+    """Instantiate a source adapter from *config.source.type*."""
+    raise AdapterError(
+        f"No adapter registered for source type '{config.source.type}'. "
+        f"Install an adapter package or wait for RB-276."
+    )
+
+
+def create_targets(config: AgentSyncConfig) -> dict[str, TargetAdapter]:
+    """Instantiate target adapters from *config.targets*."""
+    missing_types: list[str] = []
+    for name, tc in config.targets.items():
+        missing_types.append(tc.type)
+
+    if missing_types:
+        unique = sorted(set(missing_types))
+        raise AdapterError(
+            f"No adapters registered for target types: {', '.join(unique)}. "
+            f"Install adapter packages or wait for RB-277."
+        )
+    return {}  # pragma: no cover
+
+
+# ===================================================================
+# CLI group
+# ===================================================================
 
 
 @click.group()
@@ -19,6 +61,11 @@ def main(ctx: click.Context, config: str | None, quiet: bool) -> None:
     ctx.ensure_object(dict)
     ctx.obj["config_path"] = config
     ctx.obj["quiet"] = quiet
+
+
+# ===================================================================
+# sync
+# ===================================================================
 
 
 @main.command()
@@ -37,8 +84,34 @@ def sync(
     no_backup: bool,
 ) -> None:
     """Sync configs from source of truth to target agents."""
-    click.echo("agentsync sync — not yet implemented")
-    raise SystemExit(0)
+    from agentsync.config import ConfigError, load
+
+    try:
+        cfg = load(ctx.obj["config_path"])
+    except ConfigError as e:
+        raise SystemExit(f"Error: {e}")
+
+    try:
+        source = create_source(cfg)
+        targets = create_targets(cfg)
+    except AdapterError as e:
+        raise SystemExit(f"Error: {e}")
+
+    from agentsync.sync import SyncEngine
+
+    engine = SyncEngine(cfg, source, targets)
+    result = engine.run(
+        dry_run=dry_run,
+        mcp_only=mcp_only,
+        rules_only=rules_only,
+        target_filter=target,
+    )
+    raise SystemExit(0 if result.success else 1)
+
+
+# ===================================================================
+# validate
+# ===================================================================
 
 
 @main.command()
@@ -47,8 +120,29 @@ def sync(
 @click.pass_context
 def validate(ctx: click.Context, verbose: bool, target: str | None) -> None:
     """Validate all generated agent configs against source of truth."""
-    click.echo("agentsync validate — not yet implemented")
-    raise SystemExit(0)
+    from agentsync.config import ConfigError, load
+
+    try:
+        cfg = load(ctx.obj["config_path"])
+    except ConfigError as e:
+        raise SystemExit(f"Error: {e}")
+
+    try:
+        source = create_source(cfg)
+        targets = create_targets(cfg)
+    except AdapterError as e:
+        raise SystemExit(f"Error: {e}")
+
+    from agentsync.validate import Validator
+
+    validator = Validator(cfg, source, targets)
+    report = validator.run(verbose=verbose, target_filter=target)
+    raise SystemExit(0 if report.passed else 1)
+
+
+# ===================================================================
+# init
+# ===================================================================
 
 
 @main.command()
@@ -62,6 +156,11 @@ def init(force: bool) -> None:
         click.echo(f"Created {path}")
     except ConfigError as e:
         raise SystemExit(f"Error: {e}")
+
+
+# ===================================================================
+# status
+# ===================================================================
 
 
 @main.command()

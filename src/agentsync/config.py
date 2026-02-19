@@ -8,7 +8,6 @@ from typing import Any
 
 import yaml
 
-
 CONFIG_FILENAME = "agentsync.yaml"
 SUPPORTED_VERSIONS = {1}
 KNOWN_SOURCE_TYPES = {"claude"}
@@ -114,7 +113,8 @@ def _parse_source(raw: dict[str, Any]) -> SourceConfig:
     source_type = raw.get("type", "claude")
     if source_type not in KNOWN_SOURCE_TYPES:
         raise ConfigError(
-            f"Unknown source type '{source_type}'. Supported: {', '.join(sorted(KNOWN_SOURCE_TYPES))}"
+            f"Unknown source type '{source_type}'. "
+            f"Supported: {', '.join(sorted(KNOWN_SOURCE_TYPES))}"
         )
     return SourceConfig(
         type=source_type,
@@ -141,7 +141,9 @@ def _parse_target(name: str, raw: dict[str, Any]) -> TargetConfig:
         )
 
     exclude_servers = raw.get("exclude_servers", [])
-    if not isinstance(exclude_servers, list) or not all(isinstance(s, str) for s in exclude_servers):
+    if not isinstance(exclude_servers, list) or not all(
+        isinstance(s, str) for s in exclude_servers
+    ):
         raise ConfigError(f"Target '{name}': exclude_servers must be a list of strings")
 
     protocols = raw.get("protocols", [])
