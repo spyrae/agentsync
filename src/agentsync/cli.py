@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import click
 
 from agentsync import __version__
@@ -53,8 +55,13 @@ def validate(ctx: click.Context, verbose: bool, target: str | None) -> None:
 @click.option("--force", is_flag=True, help="Overwrite existing agentsync.yaml.")
 def init(force: bool) -> None:
     """Create an agentsync.yaml config file with sensible defaults."""
-    click.echo("agentsync init — not yet implemented")
-    raise SystemExit(0)
+    from agentsync.config import ConfigError, generate_default_config
+
+    try:
+        path = generate_default_config(Path.cwd(), force=force)
+        click.echo(f"Created {path}")
+    except ConfigError as e:
+        raise SystemExit(f"Error: {e}")
 
 
 @main.command()
