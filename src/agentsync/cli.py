@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -13,9 +14,14 @@ if TYPE_CHECKING:
     from agentsync.adapters.base import SourceAdapter, TargetAdapter
     from agentsync.config import AgentSyncConfig
 
+# Exit codes
+EXIT_OK = 0
+EXIT_RUNTIME_ERROR = 1
+EXIT_CONFIG_ERROR = 2
+
 
 # ===================================================================
-# Adapter registry (stubs — real adapters registered in RB-276/277)
+# Adapter registry
 # ===================================================================
 
 
@@ -30,9 +36,7 @@ def create_source(config: AgentSyncConfig) -> SourceAdapter:
 
         return ClaudeSourceAdapter(config)
 
-    raise AdapterError(
-        f"No adapter registered for source type '{config.source.type}'."
-    )
+    raise AdapterError(f"No adapter registered for source type '{config.source.type}'.")
 
 
 def create_targets(config: AgentSyncConfig) -> dict[str, TargetAdapter]:
@@ -52,9 +56,7 @@ def create_targets(config: AgentSyncConfig) -> dict[str, TargetAdapter]:
 
             targets[name] = AntigravityTargetAdapter(tc, config)
         else:
-            raise AdapterError(
-                f"No adapter registered for target type '{tc.type}'."
-            )
+            raise AdapterError(f"No adapter registered for target type '{tc.type}'.")
     return targets
 
 
@@ -98,16 +100,23 @@ def sync(
     """Sync configs from source of truth to target agents."""
     from agentsync.config import ConfigError, load
 
+    quiet: bool = ctx.obj["quiet"]
+
     try:
         cfg = load(ctx.obj["config_path"])
     except ConfigError as e:
-        raise SystemExit(f"Error: {e}")
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(EXIT_CONFIG_ERROR)
+
+    if no_backup:
+        cfg.sync.backup = False
 
     try:
         source = create_source(cfg)
         targets = create_targets(cfg)
     except AdapterError as e:
-        raise SystemExit(f"Error: {e}")
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(EXIT_CONFIG_ERROR)
 
     from agentsync.sync import SyncEngine
 
@@ -117,8 +126,15 @@ def sync(
         mcp_only=mcp_only,
         rules_only=rules_only,
         target_filter=target,
+        quiet=quiet,
     )
-    raise SystemExit(0 if result.success else 1)
+
+    if not quiet:
+        from agentsync.utils.output import print_sync_summary
+
+        print_sync_summary(result)
+
+    sys.exit(EXIT_OK if result.success else EXIT_RUNTIME_ERROR)
 
 
 # ===================================================================
@@ -134,22 +150,32 @@ def validate(ctx: click.Context, verbose: bool, target: str | None) -> None:
     """Validate all generated agent configs against source of truth."""
     from agentsync.config import ConfigError, load
 
+    quiet: bool = ctx.obj["quiet"]
+
     try:
         cfg = load(ctx.obj["config_path"])
     except ConfigError as e:
-        raise SystemExit(f"Error: {e}")
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(EXIT_CONFIG_ERROR)
 
     try:
         source = create_source(cfg)
         targets = create_targets(cfg)
     except AdapterError as e:
-        raise SystemExit(f"Error: {e}")
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(EXIT_CONFIG_ERROR)
 
     from agentsync.validate import Validator
 
     validator = Validator(cfg, source, targets)
     report = validator.run(verbose=verbose, target_filter=target)
-    raise SystemExit(0 if report.passed else 1)
+
+    if not quiet:
+        from agentsync.utils.output import print_validation_report
+
+        print_validation_report(report, verbose=verbose)
+
+    sys.exit(EXIT_OK if report.passed else EXIT_RUNTIME_ERROR)
 
 
 # ===================================================================
@@ -167,7 +193,8 @@ def init(force: bool) -> None:
         path = generate_default_config(Path.cwd(), force=force)
         click.echo(f"Created {path}")
     except ConfigError as e:
-        raise SystemExit(f"Error: {e}")
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(EXIT_CONFIG_ERROR)
 
 
 # ===================================================================
@@ -179,5 +206,21 @@ def init(force: bool) -> None:
 @click.pass_context
 def status(ctx: click.Context) -> None:
     """Show current sync state and detect drift."""
-    click.echo("agentsync status — not yet implemented")
-    raise SystemExit(0)
+    from agentsync.config import ConfigError, load
+
+    try:
+        cfg = load(ctx.obj["config_path"])
+    except ConfigError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(EXIT_CONFIG_ERROR)
+
+    try:
+        source = create_source(cfg)
+        targets = create_targets(cfg)
+    except AdapterError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(EXIT_CONFIG_ERROR)
+
+    from agentsync.utils.output import print_status
+
+    print_status(cfg, source, targets)

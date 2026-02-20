@@ -21,21 +21,25 @@ def parse_markdown_sections(content: str) -> list[Section]:
         if line.startswith("### "):
             # Flush previous section
             if current_header is not None:
-                sections.append(Section(
-                    header=current_header,
-                    level=current_level,
-                    content="\n".join(current_lines),
-                ))
+                sections.append(
+                    Section(
+                        header=current_header,
+                        level=current_level,
+                        content="\n".join(current_lines),
+                    )
+                )
             current_header = line[4:].strip()
             current_level = 3
             current_lines = [line]
         elif line.startswith("## "):
             if current_header is not None:
-                sections.append(Section(
-                    header=current_header,
-                    level=current_level,
-                    content="\n".join(current_lines),
-                ))
+                sections.append(
+                    Section(
+                        header=current_header,
+                        level=current_level,
+                        content="\n".join(current_lines),
+                    )
+                )
             current_header = line[3:].strip()
             current_level = 2
             current_lines = [line]
@@ -44,11 +48,13 @@ def parse_markdown_sections(content: str) -> list[Section]:
 
     # Flush last section
     if current_header is not None:
-        sections.append(Section(
-            header=current_header,
-            level=current_level,
-            content="\n".join(current_lines),
-        ))
+        sections.append(
+            Section(
+                header=current_header,
+                level=current_level,
+                content="\n".join(current_lines),
+            )
+        )
 
     return sections
 

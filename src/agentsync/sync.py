@@ -57,6 +57,7 @@ class SyncEngine:
         mcp_only: bool = False,
         rules_only: bool = False,
         target_filter: str | None = None,
+        quiet: bool = False,
     ) -> SyncResult:
         """Execute the sync pipeline.
 
@@ -64,7 +65,7 @@ class SyncEngine:
         """
         from agentsync.utils.logger import SyncLogger
 
-        log = SyncLogger(dry_run=dry_run)
+        log = SyncLogger(dry_run=dry_run, quiet=quiet)
         result = SyncResult(success=True, dry_run=dry_run)
 
         # Determine which targets to process
@@ -103,8 +104,7 @@ class SyncEngine:
                 if not rules_only and servers:
                     filtered_servers = self._filter_servers(servers, name)
                     log.info(
-                        f"{len(filtered_servers)}/{len(servers)} servers "
-                        f"after filtering for {name}"
+                        f"{len(filtered_servers)}/{len(servers)} servers after filtering for {name}"
                     )
                     target.generate_mcp(filtered_servers)
 
@@ -113,8 +113,7 @@ class SyncEngine:
                     exclude_set = set(self._config.rules.exclude_sections)
                     filtered = filter_sections(all_sections, exclude_set)
                     log.info(
-                        f"{len(filtered)}/{len(all_sections)} sections "
-                        f"after filtering for {name}"
+                        f"{len(filtered)}/{len(all_sections)} sections after filtering for {name}"
                     )
                     target.generate_rules(filtered)
 
@@ -155,9 +154,8 @@ class SyncEngine:
             if key.lower() in exclude:
                 continue
             if protocols:
-                matches = (
-                    ("stdio" in protocols and sc.is_stdio)
-                    or ("http" in protocols and sc.is_http)
+                matches = ("stdio" in protocols and sc.is_stdio) or (
+                    "http" in protocols and sc.is_http
                 )
                 if not matches:
                     continue

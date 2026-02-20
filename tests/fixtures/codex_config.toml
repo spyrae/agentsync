@@ -1,0 +1,6 @@
+[user]
+name = "test-user"
+
+[settings]
+theme = "dark"
+auto_save = true

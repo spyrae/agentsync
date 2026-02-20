@@ -1,0 +1,59 @@
+name: New Adapter Request
+description: Request support for a new AI coding agent
+labels: ["adapter", "enhancement"]
+body:
+  - type: input
+    id: agent
+    attributes:
+      label: Agent Name
+      description: Which AI coding agent should be supported?
+      placeholder: "Windsurf, Zed, Cline, etc."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Adapter Type
+      options:
+        - Target (sync TO this agent)
+        - Source (sync FROM this agent)
+    validations:
+      required: true
+
+  - type: textarea
+    id: mcp_format
+    attributes:
+      label: MCP Config Format
+      description: How does this agent store MCP server configs? Include file path and format example.
+      placeholder: |
+        File: ~/.agent/mcp.json
+        Format: JSON
+        Example:
+        {
+          "servers": { ... }
+        }
+    validations:
+      required: true
+
+  - type: textarea
+    id: rules_format
+    attributes:
+      label: Rules Format
+      description: How does this agent store rules/instructions? Include file path and format.
+      placeholder: |
+        File: .agent/rules.md
+        Format: Markdown
+
+  - type: textarea
+    id: docs
+    attributes:
+      label: Documentation Links
+      description: Links to official docs about this agent's config format.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd be willing to implement this adapter

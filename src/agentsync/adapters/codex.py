@@ -74,7 +74,8 @@ class CodexTargetAdapter(TargetAdapter):
 
         config_path = (
             resolve_path(self._tc.config_path, self._config.config_dir)
-            if self._tc.config_path else None
+            if self._tc.config_path
+            else None
         )
         if config_path and config_path.is_file():
             content = config_path.read_text(encoding="utf-8")
@@ -84,19 +85,23 @@ class CodexTargetAdapter(TargetAdapter):
                 exclude = set(self._tc.exclude_servers)
                 results.append(check_server_consistency(expected, actual, "codex", exclude))
             else:
-                results.append(ValidationResult(
-                    name="codex markers",
-                    passed=True,
-                    message="No agentsync markers found in config.toml",
-                    severity="warning",
-                ))
+                results.append(
+                    ValidationResult(
+                        name="codex markers",
+                        passed=True,
+                        message="No agentsync markers found in config.toml",
+                        severity="warning",
+                    )
+                )
         else:
-            results.append(ValidationResult(
-                name="codex config file",
-                passed=True,
-                message="Config file does not exist yet",
-                severity="info",
-            ))
+            results.append(
+                ValidationResult(
+                    name="codex config file",
+                    passed=True,
+                    message="Config file does not exist yet",
+                    severity="info",
+                )
+            )
 
         return results
 

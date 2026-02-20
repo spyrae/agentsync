@@ -172,9 +172,9 @@ class TestWrite:
     def test_preserves_existing(self, tmp_path: Path):
         # Write a pre-existing config.toml with markers
         existing = (
-            "[model]\nprovider = \"openai\"\n\n"
+            '[model]\nprovider = "openai"\n\n'
             f"{MARKER_START}\n"
-            "[mcp_servers.old]\ncommand = \"old\"\n\n"
+            '[mcp_servers.old]\ncommand = "old"\n\n'
             f"{MARKER_END}\n\n"
             "[extra]\nfoo = true\n"
         )
@@ -193,7 +193,7 @@ class TestWrite:
 
     def test_appends_markers(self, tmp_path: Path):
         # File without markers
-        (tmp_path / "config.toml").write_text("[model]\nprovider = \"openai\"\n")
+        (tmp_path / "config.toml").write_text('[model]\nprovider = "openai"\n')
 
         tc, cfg = _config(tmp_path)
         adapter = CodexTargetAdapter(tc, cfg)
@@ -230,14 +230,8 @@ class TestWrite:
 
 class TestValidate:
     def test_with_markers(self, tmp_path: Path):
-        (tmp_path / ".mcp.json").write_text(
-            json.dumps({"mcpServers": {"a": {"command": "x"}}})
-        )
-        toml = (
-            f"{MARKER_START}\n"
-            "[mcp_servers.a]\ncommand = \"x\"\n\n"
-            f"{MARKER_END}\n"
-        )
+        (tmp_path / ".mcp.json").write_text(json.dumps({"mcpServers": {"a": {"command": "x"}}}))
+        toml = f'{MARKER_START}\n[mcp_servers.a]\ncommand = "x"\n\n{MARKER_END}\n'
         (tmp_path / "config.toml").write_text(toml)
 
         tc, cfg = _config(tmp_path)
@@ -247,7 +241,7 @@ class TestValidate:
         assert all(r.passed for r in server_check)
 
     def test_no_markers(self, tmp_path: Path):
-        (tmp_path / "config.toml").write_text("[model]\nprovider = \"openai\"\n")
+        (tmp_path / "config.toml").write_text('[model]\nprovider = "openai"\n')
 
         tc, cfg = _config(tmp_path)
         adapter = CodexTargetAdapter(tc, cfg)

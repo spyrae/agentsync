@@ -165,9 +165,7 @@ class TestValidate:
         (tmp_path / ".mcp.json").write_text(
             json.dumps({"mcpServers": {"a": {"command": "x"}, "b": {"command": "y"}}})
         )
-        (tmp_path / "mcp.json").write_text(
-            json.dumps({"mcpServers": {"a": {}, "b": {}}})
-        )
+        (tmp_path / "mcp.json").write_text(json.dumps({"mcpServers": {"a": {}, "b": {}}}))
         tc, cfg = _config(tmp_path)
         adapter = CursorTargetAdapter(tc, cfg)
         results = adapter.validate()
@@ -179,9 +177,7 @@ class TestValidate:
             json.dumps({"mcpServers": {"a": {"command": "x"}, "b": {"command": "y"}}})
         )
         # Target only has "a", missing "b"
-        (tmp_path / "mcp.json").write_text(
-            json.dumps({"mcpServers": {"a": {}}})
-        )
+        (tmp_path / "mcp.json").write_text(json.dumps({"mcpServers": {"a": {}}}))
         tc, cfg = _config(tmp_path)
         adapter = CursorTargetAdapter(tc, cfg)
         results = adapter.validate()

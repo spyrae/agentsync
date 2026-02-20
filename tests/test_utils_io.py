@@ -55,6 +55,7 @@ def test_write_json_creates_file(tmp_path: Path):
     wr = write_json(target, {"key": "value"}, _log())
     assert wr.written is True
     import json
+
     assert json.loads(target.read_text()) == {"key": "value"}
 
 

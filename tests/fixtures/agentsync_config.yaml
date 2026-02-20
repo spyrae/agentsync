@@ -1,0 +1,39 @@
+version: 1
+
+source:
+  type: claude
+  global_config: fixtures/claude_global.json
+  project_mcp: fixtures/claude_project_mcp.json
+  rules_file: fixtures/claude_md_sample.md
+
+targets:
+  cursor:
+    type: cursor
+    mcp_path: output/cursor_mcp.json
+    rules_path: output/cursor_rules.mdc
+    rules_format: mdc
+    exclude_servers: []
+
+  codex:
+    type: codex
+    config_path: output/codex_config.toml
+    rules_path: output/AGENTS.md
+    rules_format: md
+    exclude_servers:
+      - codex
+
+  antigravity:
+    type: antigravity
+    mcp_path: output/antigravity_mcp.json
+    protocols:
+      - stdio
+    exclude_servers: []
+
+rules:
+  exclude_sections:
+    - "MCP Servers"
+
+sync:
+  backup: false
+  backup_dir: output/backups
+  log_dir: output/logs

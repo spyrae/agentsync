@@ -122,84 +122,105 @@ class TestExtractServers:
 class TestLoadServers:
     def test_global_only(self, tmp_path: Path):
         """Tier 1: top-level mcpServers from ~/.claude.json."""
-        _write_json(tmp_path / ".claude.json", {
-            "mcpServers": {
-                "global-srv": {"command": "node", "args": ["server.js"]},
-            }
-        })
+        _write_json(
+            tmp_path / ".claude.json",
+            {
+                "mcpServers": {
+                    "global-srv": {"command": "node", "args": ["server.js"]},
+                }
+            },
+        )
         adapter = ClaudeSourceAdapter(_make_config(tmp_path))
         servers = adapter.load_servers()
         assert "global-srv" in servers
 
     def test_project_specific(self, tmp_path: Path):
         """Tier 2: project-specific mcpServers from ~/.claude.json projects block."""
-        _write_json(tmp_path / ".claude.json", {
-            "mcpServers": {},
-            "projects": {
-                str(tmp_path): {
-                    "mcpServers": {
-                        "project-srv": {"command": "deno", "args": ["run"]},
+        _write_json(
+            tmp_path / ".claude.json",
+            {
+                "mcpServers": {},
+                "projects": {
+                    str(tmp_path): {
+                        "mcpServers": {
+                            "project-srv": {"command": "deno", "args": ["run"]},
+                        }
                     }
-                }
-            }
-        })
+                },
+            },
+        )
         adapter = ClaudeSourceAdapter(_make_config(tmp_path))
         servers = adapter.load_servers()
         assert "project-srv" in servers
 
     def test_local_mcp_json(self, tmp_path: Path):
         """Tier 3: .mcp.json servers."""
-        _write_json(tmp_path / ".mcp.json", {
-            "mcpServers": {
-                "local-srv": {"url": "https://local.dev/mcp"},
-            }
-        })
+        _write_json(
+            tmp_path / ".mcp.json",
+            {
+                "mcpServers": {
+                    "local-srv": {"url": "https://local.dev/mcp"},
+                }
+            },
+        )
         adapter = ClaudeSourceAdapter(_make_config(tmp_path))
         servers = adapter.load_servers()
         assert "local-srv" in servers
 
     def test_three_tier_merge(self, tmp_path: Path):
         """All three tiers merge correctly."""
-        _write_json(tmp_path / ".claude.json", {
-            "mcpServers": {
-                "global-only": {"command": "g"},
-            },
-            "projects": {
-                str(tmp_path): {
-                    "mcpServers": {
-                        "project-only": {"command": "p"},
+        _write_json(
+            tmp_path / ".claude.json",
+            {
+                "mcpServers": {
+                    "global-only": {"command": "g"},
+                },
+                "projects": {
+                    str(tmp_path): {
+                        "mcpServers": {
+                            "project-only": {"command": "p"},
+                        }
                     }
+                },
+            },
+        )
+        _write_json(
+            tmp_path / ".mcp.json",
+            {
+                "mcpServers": {
+                    "local-only": {"command": "l"},
                 }
-            }
-        })
-        _write_json(tmp_path / ".mcp.json", {
-            "mcpServers": {
-                "local-only": {"command": "l"},
-            }
-        })
+            },
+        )
         adapter = ClaudeSourceAdapter(_make_config(tmp_path))
         servers = adapter.load_servers()
         assert set(servers) == {"global-only", "project-only", "local-only"}
 
     def test_override_priority(self, tmp_path: Path):
         """Same server name on all tiers — .mcp.json (tier 3) wins."""
-        _write_json(tmp_path / ".claude.json", {
-            "mcpServers": {
-                "shared": {"command": "global-cmd"},
-            },
-            "projects": {
-                str(tmp_path): {
-                    "mcpServers": {
-                        "shared": {"command": "project-cmd"},
+        _write_json(
+            tmp_path / ".claude.json",
+            {
+                "mcpServers": {
+                    "shared": {"command": "global-cmd"},
+                },
+                "projects": {
+                    str(tmp_path): {
+                        "mcpServers": {
+                            "shared": {"command": "project-cmd"},
+                        }
                     }
+                },
+            },
+        )
+        _write_json(
+            tmp_path / ".mcp.json",
+            {
+                "mcpServers": {
+                    "shared": {"command": "local-cmd"},
                 }
-            }
-        })
-        _write_json(tmp_path / ".mcp.json", {
-            "mcpServers": {
-                "shared": {"command": "local-cmd"},
-            }
-        })
+            },
+        )
         adapter = ClaudeSourceAdapter(_make_config(tmp_path))
         servers = adapter.load_servers()
         assert servers["shared"].config["command"] == "local-cmd"
@@ -212,18 +233,24 @@ class TestLoadServers:
 
     def test_global_exists_no_mcp(self, tmp_path: Path):
         """Global config exists but .mcp.json doesn't."""
-        _write_json(tmp_path / ".claude.json", {
-            "mcpServers": {"srv": {"command": "x"}},
-        })
+        _write_json(
+            tmp_path / ".claude.json",
+            {
+                "mcpServers": {"srv": {"command": "x"}},
+            },
+        )
         adapter = ClaudeSourceAdapter(_make_config(tmp_path))
         servers = adapter.load_servers()
         assert "srv" in servers
 
     def test_mcp_exists_no_global(self, tmp_path: Path):
         """Only .mcp.json exists, no global config."""
-        _write_json(tmp_path / ".mcp.json", {
-            "mcpServers": {"local": {"url": "http://x"}},
-        })
+        _write_json(
+            tmp_path / ".mcp.json",
+            {
+                "mcpServers": {"local": {"url": "http://x"}},
+            },
+        )
         adapter = ClaudeSourceAdapter(_make_config(tmp_path))
         servers = adapter.load_servers()
         assert "local" in servers
@@ -285,12 +312,15 @@ class TestLoadRules:
 class TestIntegration:
     def test_full_cycle_with_sync_engine(self, tmp_path: Path):
         """ClaudeSourceAdapter feeds real data into SyncEngine with FakeTarget."""
-        _write_json(tmp_path / ".mcp.json", {
-            "mcpServers": {
-                "context7": {"command": "npx", "args": ["-y", "@upstash/context7-mcp"]},
-                "supabase": {"url": "https://supa.co/mcp"},
-            }
-        })
+        _write_json(
+            tmp_path / ".mcp.json",
+            {
+                "mcpServers": {
+                    "context7": {"command": "npx", "args": ["-y", "@upstash/context7-mcp"]},
+                    "supabase": {"url": "https://supa.co/mcp"},
+                }
+            },
+        )
         (tmp_path / "CLAUDE.md").write_text(
             "# Rules\n\n## Code Style\n\nUse snake_case.\n\n## Testing\n\nWrite tests.\n",
             encoding="utf-8",

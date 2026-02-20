@@ -55,6 +55,7 @@ def write_text(
 # Internal helper
 # ------------------------------------------------------------------
 
+
 def _write(
     path: Path,
     content: str,

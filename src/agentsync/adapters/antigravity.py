@@ -60,8 +60,7 @@ class AntigravityTargetAdapter(TargetAdapter):
         results: list[ValidationResult] = []
 
         mcp_path = (
-            resolve_path(self._tc.mcp_path, self._config.config_dir)
-            if self._tc.mcp_path else None
+            resolve_path(self._tc.mcp_path, self._config.config_dir) if self._tc.mcp_path else None
         )
         if mcp_path and mcp_path.is_file():
             try:
@@ -76,12 +75,14 @@ class AntigravityTargetAdapter(TargetAdapter):
                 check_server_consistency(expected, actual, "antigravity", exclude, stdio_only=True)
             )
         else:
-            results.append(ValidationResult(
-                name="antigravity mcp file",
-                passed=True,
-                message="MCP file does not exist yet",
-                severity="info",
-            ))
+            results.append(
+                ValidationResult(
+                    name="antigravity mcp file",
+                    passed=True,
+                    message="MCP file does not exist yet",
+                    severity="info",
+                )
+            )
 
         return results
 

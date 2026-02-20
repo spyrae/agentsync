@@ -139,12 +139,8 @@ class TestWrite:
 
 class TestValidate:
     def test_consistent(self, tmp_path: Path):
-        (tmp_path / ".mcp.json").write_text(
-            json.dumps({"mcpServers": {"a": {"command": "x"}}})
-        )
-        (tmp_path / "mcp.json").write_text(
-            json.dumps({"mcpServers": {"a": {}}})
-        )
+        (tmp_path / ".mcp.json").write_text(json.dumps({"mcpServers": {"a": {"command": "x"}}}))
+        (tmp_path / "mcp.json").write_text(json.dumps({"mcpServers": {"a": {}}}))
         tc, cfg = _config(tmp_path)
         adapter = AntigravityTargetAdapter(tc, cfg)
         results = adapter.validate()
@@ -155,9 +151,7 @@ class TestValidate:
         (tmp_path / ".mcp.json").write_text(
             json.dumps({"mcpServers": {"a": {"command": "x"}, "b": {"command": "y"}}})
         )
-        (tmp_path / "mcp.json").write_text(
-            json.dumps({"mcpServers": {"a": {}}})
-        )
+        (tmp_path / "mcp.json").write_text(json.dumps({"mcpServers": {"a": {}}}))
         tc, cfg = _config(tmp_path)
         adapter = AntigravityTargetAdapter(tc, cfg)
         results = adapter.validate()

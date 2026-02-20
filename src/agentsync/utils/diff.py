@@ -23,8 +23,7 @@ def show_server_diff(
 
     if not existing_path.exists():
         log.info(
-            f"{target_name}: file doesn't exist yet, "
-            f"will create with {len(new_names)} servers"
+            f"{target_name}: file doesn't exist yet, will create with {len(new_names)} servers"
         )
         return
 

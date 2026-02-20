@@ -202,9 +202,7 @@ def test_load_no_targets(tmp_path: Path):
 
 def test_load_invalid_rules_format(tmp_path: Path):
     config_file = tmp_path / "agentsync.yaml"
-    config_file.write_text(
-        "version: 1\ntargets:\n  x:\n    type: cursor\n    rules_format: html\n"
-    )
+    config_file.write_text("version: 1\ntargets:\n  x:\n    type: cursor\n    rules_format: html\n")
     with pytest.raises(ConfigError, match="rules_format must be"):
         load_config(config_file)
 

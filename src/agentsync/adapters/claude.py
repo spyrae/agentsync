@@ -48,9 +48,7 @@ class ClaudeSourceAdapter(SourceAdapter):
             top_level = global_data.get("mcpServers", {})
             if isinstance(top_level, dict):
                 merged.update(self._extract_servers(top_level))
-                self._log.info(
-                    f"Global config: {len(top_level)} servers from {global_path}"
-                )
+                self._log.info(f"Global config: {len(top_level)} servers from {global_path}")
 
             # Tier 2: projects[config_dir].mcpServers
             projects = global_data.get("projects", {})
@@ -63,8 +61,7 @@ class ClaudeSourceAdapter(SourceAdapter):
                         extracted = self._extract_servers(project_servers)
                         merged.update(extracted)
                         self._log.info(
-                            f"Project config: {len(project_servers)} servers "
-                            f"for {project_key}"
+                            f"Project config: {len(project_servers)} servers for {project_key}"
                         )
 
         # Tier 3: .mcp.json (highest priority)
@@ -75,9 +72,7 @@ class ClaudeSourceAdapter(SourceAdapter):
             local_servers = mcp_data.get("mcpServers", {})
             if isinstance(local_servers, dict):
                 merged.update(self._extract_servers(local_servers))
-                self._log.info(
-                    f"Local .mcp.json: {len(local_servers)} servers from {mcp_path}"
-                )
+                self._log.info(f"Local .mcp.json: {len(local_servers)} servers from {mcp_path}")
 
         return merged
 

@@ -130,9 +130,11 @@ def test_check_case_insensitive_duplicates_found():
 
 def test_validator_all_pass():
     source = FakeSource(servers={"a": _sc("a")})
-    t1 = FakeTarget(validation_results=[
-        ValidationResult(name="check1", passed=True, message="ok"),
-    ])
+    t1 = FakeTarget(
+        validation_results=[
+            ValidationResult(name="check1", passed=True, message="ok"),
+        ]
+    )
     v = Validator(_config(), source, {"t1": t1})
     report = v.run()
     assert report.passed is True
@@ -141,9 +143,11 @@ def test_validator_all_pass():
 
 def test_validator_failure():
     source = FakeSource(servers={"a": _sc("a")})
-    t1 = FakeTarget(validation_results=[
-        ValidationResult(name="check1", passed=False, message="bad", severity="error"),
-    ])
+    t1 = FakeTarget(
+        validation_results=[
+            ValidationResult(name="check1", passed=False, message="bad", severity="error"),
+        ]
+    )
     v = Validator(_config(), source, {"t1": t1})
     report = v.run()
     assert report.passed is False
@@ -151,12 +155,16 @@ def test_validator_failure():
 
 def test_validator_target_filter():
     source = FakeSource(servers={"a": _sc("a")})
-    t1 = FakeTarget(validation_results=[
-        ValidationResult(name="t1-check", passed=True, message="ok"),
-    ])
-    t2 = FakeTarget(validation_results=[
-        ValidationResult(name="t2-check", passed=False, message="bad", severity="error"),
-    ])
+    t1 = FakeTarget(
+        validation_results=[
+            ValidationResult(name="t1-check", passed=True, message="ok"),
+        ]
+    )
+    t2 = FakeTarget(
+        validation_results=[
+            ValidationResult(name="t2-check", passed=False, message="bad", severity="error"),
+        ]
+    )
     cfg = _config(target_names=["t1", "t2"])
     v = Validator(cfg, source, {"t1": t1, "t2": t2})
 

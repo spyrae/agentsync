@@ -77,8 +77,7 @@ class CursorTargetAdapter(TargetAdapter):
 
         # MCP server consistency
         mcp_path = (
-            resolve_path(self._tc.mcp_path, self._config.config_dir)
-            if self._tc.mcp_path else None
+            resolve_path(self._tc.mcp_path, self._config.config_dir) if self._tc.mcp_path else None
         )
         if mcp_path and mcp_path.is_file():
             try:
@@ -91,29 +90,34 @@ class CursorTargetAdapter(TargetAdapter):
             exclude = set(self._tc.exclude_servers)
             results.append(check_server_consistency(expected, actual, "cursor", exclude))
         else:
-            results.append(ValidationResult(
-                name="cursor mcp file",
-                passed=True,
-                message="MCP file does not exist yet",
-                severity="info",
-            ))
+            results.append(
+                ValidationResult(
+                    name="cursor mcp file",
+                    passed=True,
+                    message="MCP file does not exist yet",
+                    severity="info",
+                )
+            )
 
         # Excluded sections leak check
         rules_path = (
             resolve_path(self._tc.rules_path, self._config.config_dir)
-            if self._tc.rules_path else None
+            if self._tc.rules_path
+            else None
         )
         if rules_path and rules_path.is_file():
             content = rules_path.read_text(encoding="utf-8")
             exclude_set = set(self._config.rules.exclude_sections)
             results.append(check_no_excluded_sections(content, exclude_set, "cursor"))
         else:
-            results.append(ValidationResult(
-                name="cursor rules file",
-                passed=True,
-                message="Rules file does not exist yet",
-                severity="info",
-            ))
+            results.append(
+                ValidationResult(
+                    name="cursor rules file",
+                    passed=True,
+                    message="Rules file does not exist yet",
+                    severity="info",
+                )
+            )
 
         return results
 
