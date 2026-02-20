@@ -37,9 +37,9 @@ You use multiple AI coding agents — Claude Code, Cursor, Codex, Gemini. Each s
 ## Installation
 
 ```bash
-pip install agentsync     # pip
-pipx install agentsync    # pipx (recommended for CLI tools)
-uvx agentsync             # uv (run without installing)
+pip install agentsync-cli     # pip
+pipx install agentsync-cli    # pipx (recommended for CLI tools)
+uvx agentsync-cli             # uv (run without installing)
 ```
 
 ## Quick Start

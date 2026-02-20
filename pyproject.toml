@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agentsync"
+name = "agentsync-cli"
 version = "0.1.0"
 description = "Sync MCP server configs and rules across AI coding agents"
 readme = "README.md"

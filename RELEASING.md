@@ -34,7 +34,7 @@
 
 6. **Verify**:
    ```bash
-   pip install agentsync==0.2.0
+   pip install agentsync-cli==0.2.0
    agentsync --version
    ```
 
@@ -42,10 +42,11 @@
 
 1. Go to https://pypi.org/manage/account/publishing/
 2. Add a new pending publisher:
-   - Owner: `spyrae`
-   - Repository: `agentsync`
-   - Workflow: `release.yml`
-   - Environment: `pypi`
+   - **PyPI Project Name**: `agentsync-cli`
+   - **Owner**: `spyrae`
+   - **Repository name**: `agentsync`
+   - **Workflow name**: `release.yml`
+   - **Environment name**: `pypi`
 3. The first release will claim the package name
 
 ## TestPyPI (optional)
