@@ -181,18 +181,6 @@ agentsync is designed for extension. To add support for a new AI agent:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines and the full adapter interface.
 
-## Roadmap
-
-| Version | Focus |
-|---------|-------|
-| **v0.1** | Core sync: Claude → Cursor, Codex, Antigravity |
-| **v0.2** | Plugin system for custom adapters |
-| **v0.3** | Watch mode (auto-sync on file change) |
-| **v0.4** | Windsurf, Zed, Cline adapters (community) |
-| **v1.0** | Stable API, full coverage |
-
-Have an idea? [Open a discussion](https://github.com/spyrae/agentsync/discussions) or [request an adapter](https://github.com/spyrae/agentsync/issues/new?template=new_adapter.yml).
-
 ## Contributing
 
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
