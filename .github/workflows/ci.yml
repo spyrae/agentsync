@@ -33,7 +33,7 @@ jobs:
       - run: pytest --cov=agentsync --cov-report=xml
       - name: Upload coverage
         if: matrix.python-version == '3.12'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           file: coverage.xml
         continue-on-error: true
